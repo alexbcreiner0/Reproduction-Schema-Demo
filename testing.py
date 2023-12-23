@@ -5,23 +5,32 @@ from matplotlib import rcParams
 
 def get_text(file_name):
 	with open(file_name, 'r') as file:
-		text = r'' + file.read().strip()
+		text = r'' + file.read()
 		return text
 
+window = tk.Tk()
 text = get_text('exploitation.txt')
 fig, ax = plt.subplots()
-ax.set_xlim(0,5)
-ax.set_ylim(0,5)
-rcParams['text.usetex'] = True
+
+ax.axis("off")
 rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
-fuck = ax.text(x = 0, y = 5, s = text, size=10, ha = 'left', va = 'top', wrap = True)
-fuck = ax.text(x = 0, y = 4, s = 'bloop', size=10, ha = 'left', va = 'top', wrap = True)
-#ax.axis('off')
-window = tk.Tk()
-canvas = tk.Canvas(window, bg = 'white')
-canvas.place(relx = 0, rely = 0, relwidth = 1, relheight = 1)
+
+ax.text(x = 0, y = 1, s = f"{text}", ha = 'left', va = 'top', size=10, wrap = True)
+
+canvas = tk.Canvas(window, bg = 'white', width = 1920)
 rendered_latex = FigureCanvasTkAgg(fig, master = canvas)
 rendered_latex.draw()
-rendered_latex.get_tk_widget().place(relx = 0, rely = 0)
+rendered_latex.get_tk_widget().pack(fill = 'both')
+
+y_scrollbar = tk.Scrollbar(window, orient = 'vertical', command = canvas.yview)
+x_scrollbar = tk.Scrollbar(window, orient = 'horizontal', command = canvas.xview)
+
+y_scrollbar.pack(side = 'right', fill = 'y')
+x_scrollbar.pack(side = 'bottom', fill = 'x')
+
+canvas.config(yscrollcommand = y_scrollbar.set, scrollregion = (0,0,3000,5000), xscrollcommand = x_scrollbar.set)
+canvas.pack(fill = 'both')
+
+
 
 window.mainloop()
