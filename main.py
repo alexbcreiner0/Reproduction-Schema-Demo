@@ -9,6 +9,7 @@ from matplotlib import rcParams
 from pdf2image import convert_from_path
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import fitz
 
 COLORS = {'dark_gray': '#242424','light_gray': '#2b2b2b', 'entry_gray': '#343638'}
 initial_setup_complete = False
@@ -239,14 +240,20 @@ class EntryBlock(ctk.CTkFrame):
     def on_enter(self, event):
         if self.info_window: self.info_window.destroy()
 
+        pdf = fitz.open('exploitation.pdf')
+        page = pdf[0]
+        pix = page.get_pixmap()
+        image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        self.tk_image = ImageTk.PhotoImage(image = image)
+
         self.info_window = tk.Toplevel(self)
         self.info_window.title("Information")
-
-        text_image_ctk = self.import_text('exploitation.txt')
         x, y = event.x_root + 10, event.y_root + 10
-        self.info_window.geometry(f'200x100+{x}+{y}')
-        label = ctk.CTkLabel(self.info_window, text = '', padx = 10, pady = 10, image = text_image_ctk)
-        label.pack()
+        self.info_window.geometry(f'{pix.width}x500+{x}+{y}')
+
+        canvas = tk.Canvas(self.info_window, width = pix.width)
+        canvas.create_image(0,0,anchor = 'nw', image = self.tk_image)
+        canvas.place(relx = 0, rely = 0, relwidth = 1, relheight = 1)
 
     # Method for when user leaves help button with mouse
     def on_leave(self, event):
@@ -277,11 +284,9 @@ class EntryBlock(ctk.CTkFrame):
     def get(self):
         return float(self.entry_text.get())
 
-#root = App("Marx Visualizer", (800,600))
+class InitValueBlock(EntryBlock):
+    def __init__(self, parent, var_label, png_path, range, initial):
 
-#root.mainloop()
-with open(os.path.join(CD, 'exploitation.txt'),'r') as file:
-    text = file.read()
-    image = latex_image(text, 'exploitation', 'white', 'black', size = 20)
-    image.show()
-    
+root = App("Marx Visualizer", (800,600))
+
+root.mainloop()
