@@ -14,6 +14,7 @@ import fitz
 COLORS = {'dark_gray': '#242424','light_gray': '#2b2b2b', 'entry_gray': '#343638'}
 initial_setup_complete = False
 CD = os.getcwd()
+DPI = 0
 
 def get_ctk_image(text, png_path, size):
     bg_color = {'light': '#CFCFCF', 'dark': '#333333'}
@@ -33,7 +34,7 @@ def latex_image(text, png_path, txt_color, bg_color, size):
     rcParams['text.latex.preamble'] = r'\usepackage{amsmath}'
     fig = plt.figure(facecolor = bg_color)
     plt.axis('off')
-    plt.text(x = 0.5, y = 0.5, s = f'{text}', size = 200, ha = 'center', color = txt_color)
+    plt.text(x = 0.5, y = 0.5, s = f'{text}', size = size, ha = 'center', color = txt_color)
     plt.savefig(
         png_path,
         format = 'png', 
@@ -53,6 +54,9 @@ class App(ctk.CTk):
         offsetx = midpoint[0]-int(window_dim[0]/2)
         offsety = midpoint[1]-int(window_dim[1]/2)
         self.geometry(f'{window_dim[0]}x{window_dim[1]}+{offsetx}+{offsety}')
+        global DPI
+        DPI = screen_width / (window_dim[0] / 2.54)
+        print(DPI)
         #self.geometry(f'1920x1080+{offsetx}+{offsety}')
 
         self.rowconfigure(0, weight = 1, uniform = 'a')  
@@ -284,9 +288,12 @@ class EntryBlock(ctk.CTkFrame):
     def get(self):
         return float(self.entry_text.get())
 
-class InitValueBlock(EntryBlock):
-    def __init__(self, parent, var_label, png_path, range, initial):
+# class InitValueBlock(EntryBlock):
+#     def __init__(self, parent, var_label, png_path, range, initial):
 
-root = App("Marx Visualizer", (800,600))
 
-root.mainloop()
+if __name__ == "__main__":
+    root = App("Marx Visualizer", (800,600))
+
+    root.mainloop()
+    print(DPI)
